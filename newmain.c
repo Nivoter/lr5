@@ -1,4 +1,4 @@
-// PIC18F4525 Configuration Bit Settings
+/// PIC18F4525 Configuration Bit Settings
 
 // 'C' source line config statements
 
@@ -149,34 +149,52 @@ int read_Adc()
 
 
 void main(void) { 
-    int i=0;
+    int i=2;
+    char flag=0;
+    char r=0;
+    char l=0;
     Adc_init();
     motor_init();
-    motor_a_change_Speed_A(100);
-    motor_a_change_Speed_B(100);
     while(1)
     {
-       
-        ADCON0bits.CHS=i; // âûáîð àíàëîãîâîãî êàíàëà  
-        while(read_Adc()>600)
+        motor_a_change_Speed_A(127);
+        motor_a_change_Speed_B(127);
+        
+        i=0;
+        ADCON0bits.CHS=i; // âûáîð àíàëîãîâîãî êàíàëà 
+        if(read_Adc()>400 && l==0)
         {
-            motor_a_change_Speed_B(-100);
-            motor_a_change_Speed_A(100);
+            r=1;
         }
-        motor_a_change_Speed_A(100);
-        motor_a_change_Speed_B(100);
-        __delay_ms(50);
+        
+        i=1;
+        ADCON0bits.CHS=i; // âûáîð àíàëîãîâîãî êàíàëà 
+        if(read_Adc()>350 && r==0)
+        {
+            l=1;
+        }
+        
+        i=0;
+        ADCON0bits.CHS=i; // âûáîð àíàëîãîâîãî êàíàëà  
+        if(r==1)
+        {
+            while(read_Adc()>420)
+            {
+                motor_a_change_Speed_B(0);
+                motor_a_change_Speed_A(127);
+            }
+            r=0;
+        }
         i++;
         ADCON0bits.CHS=i; // âûáîð àíàëîãîâîãî êàíàëà  
-        while(read_Adc()>600)
+        if(l==1)
         {
-            motor_a_change_Speed_B(100);
-            motor_a_change_Speed_A(-100);
+            while(read_Adc()>420)
+            {
+                motor_a_change_Speed_B(127);
+                motor_a_change_Speed_A(0);
+            }
+            l=0;
         }
-        motor_a_change_Speed_A(100);
-        motor_a_change_Speed_B(100);
-        __delay_ms(50);
-        i=0;
-         
     } 
-}    
+} 
